@@ -42,3 +42,56 @@ terraform.rc
 # Optional: ignore plan files saved before destroying Terraform configuration
 # Uncomment the line below if you want to ignore planout files.
 # planout
+
+# =====================================
+# LoreKeeper - Git Security Rules
+# =====================================
+
+# Terraform state and local infrastructure
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.*
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# AWS credentials and secrets
+.aws/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*credentials*.json
+*secrets*.json
+
+# Python environments and cache
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Local development tools
+.vscode/
+.idea/
+
+# Private legal documents and data
+private-documents/
+real-case-data/
+sensitive-data/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+# Saved Terraform plans
+planout
+*.tfplan
