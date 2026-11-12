@@ -95,3 +95,10 @@ Thumbs.db
 # Saved Terraform plans
 planout
 *.tfplan
+# Generated Lambda deployment packages
+/backend/upload/lambda_upload.zip
+/terraform/lambda_upload.zip
+
+# Python-generated files
+__pycache__/
+*.pyc
