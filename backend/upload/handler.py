@@ -6,21 +6,14 @@ import uuid
 import boto3
 from botocore.config import Config
 
-# AWS S3 client
-s3 = boto3.client(
-    "s3",
-    config=Config(signature_version="s3v4")
-)
+
+s3 = boto3.client("s3", config=Config(signature_version="s3v4"))
 
 BUCKET_NAME = os.environ.get("DOCUMENT_BUCKET")
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+MAX_FILE_SIZE = 5 * 1024 * 1024
 
 
 def lambda_handler(event, context):
-    # Start with one supported document type: PDF.
-    # API Gateway authentication must be enforced
-    # before this function is publicly accessible.
-
     if not BUCKET_NAME:
         return {
             "statusCode": 500,
@@ -29,11 +22,29 @@ def lambda_handler(event, context):
             })
         }
 
-    # Generate a unique object name.
-    # Never use personal information in filenames.
-    object_key = f"uploads/{uuid.uuid4()}.pdf"
+    # Read the identity verified by API Gateway
+    claims = (
+        event.get("requestContext", {})
+        .get("authorizer", {})
+        .get("jwt", {})
+        .get("claims", {})
+    )
 
-    # Generate a short-lived, restricted upload form.
+    user_id = claims.get("sub")
+
+    # Reject requests without an authenticated user identity
+    if not isinstance(user_id, str) or not user_id:
+        return {
+            "statusCode": 403,
+            "body": json.dumps({
+                "message": "Not authorised"
+            })
+        }
+
+    # Keep each user's uploads under their own S3 prefix
+    object_key = f"uploads/{user_id}/{uuid.uuid4()}.pdf"
+
+    # Generate a short-lived upload form
     upload = s3.generate_presigned_post(
         Bucket=BUCKET_NAME,
         Key=object_key,
